@@ -24,17 +24,19 @@ exten = '/collection/topselling_free'
 bsFree = soup(url,exten,head)
 
 title = bsFree.h2.text
-
+count = 0
 chart = bsFree.find('div',{'class','id-card-list card-list two-cards'})
 for app in chart.findAll('div',{'class',
                         'card no-rationale square-cover apps small'}):
 
-        tit = app.find('a',{'class','title'}).text.split('.')
-        title = tit[1].strip()
-        rank = tit[0].strip()
+    tit = app.find('a',{'class','title'}).text.split('.')
+    title = tit[1].strip()
+    rank = tit[0].strip()
 
-        rate = app.find('div',{'class','current-rating'})
-        rating = rate['style'].split()
-        percentRating = rating[1][:7]
-
+    rate = app.find('div',{'class','current-rating'})
+    rating = rate['style'].split()
+    percentRating = rating[1][:7]
+    count += 1
+    print(rate, rating, percentRating)
         #attr sjsname="jIIjq" style="width: 80.88788032531738%;"></div>)
+print(count)
