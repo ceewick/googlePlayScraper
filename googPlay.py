@@ -1,42 +1,44 @@
-#!/usr/bin/env python
+import time
+from bs4 import BeautifulSoup
 
-import requests
-from bs4 import  BeautifulSoup
-import pandas as pd
-from urllib.request import urlopen
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys   # for necessary browser action
+from selenium.webdriver.common.by import By    # For selecting html code
+import lxml
 
+from userAgents import user_agents, randomUserAgents
 
-head = {"User-Agent":"Mozilla/5.0  (Macintosh; Intel   Mac OS\
-            X   10_9_5) AppleWebKit 537.36  (KHTML, like    Gecko)\
-              Chrome","Accept":"text/html,application/xhtml+xml,\
-              application/xmlq=0.9,image/webp,*/*;q=0.8"}
+start = time.time()
 
-def soup(url,ext,headers):
-    ''' url = glassdoor.com exten='/Reviews/Brierley-and-Partners-Reviews-E9540.htm'''
-    session = requests.Session()
-    address = url+ext
-    req = session.get(address, headers=headers)
-    bs = BeautifulSoup(req.text, 'html.parser')
-    return bs
+url = 'https://play.google.com/store/apps/collection/topselling_free'
+head = randomUserAgents()
 
-url = 'https://play.google.com/store/apps'
-exten = '/collection/topselling_free'
-bsFree = soup(url,exten,head)
+driver = webdriver.Chrome()
+driver.get('{}'.format(url))
+time.sleep(2)
 
-title = bsFree.h2.text
+for i in range(0,60):
+	driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+	time.sleep(2)
+	try:
+		showMore = driver.find_element_by_css_selector('#show-more-button')
+		showMore.click()
+	except:
+		continue
+
+pageSource = driver.page_source
+bs = BeautifulSoup(pageSource)
 count = 0
-chart = bsFree.find('div',{'class','id-card-list card-list two-cards'})
-for app in chart.findAll('div',{'class',
-                        'card no-rationale square-cover apps small'}):
 
-    tit = app.find('a',{'class','title'}).text.split('.')
-    title = tit[1].strip()
-    rank = tit[0].strip()
-
-    rate = app.find('div',{'class','current-rating'})
-    rating = rate['style'].split()
-    percentRating = rating[1][:7]
+#chart = bs.find('div',{'class','id-card-list card-list two-cards'})
+#for app in chart.
+for apps in bs.findAll('div',{'class',
+           'card no-rationale square-cover apps small'}):
+    tit = apps.find('a',{'class','title'}).text
+    # title = tit[1].strip()
+    # rank = tit[0].strip()
+    print(tit)
     count += 1
-    print(rate, rating, percentRating)
-        #attr sjsname="jIIjq" style="width: 80.88788032531738%;"></div>)
 print(count)
+driver.close()
+print(start - time.time())
